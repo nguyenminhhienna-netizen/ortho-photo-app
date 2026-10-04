@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khung Bệnh Án Chỉnh Nha - Nha Khoa Thùy Anh</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>">
+</head>
+<body>
+
+  <!-- ================= TOP NAVBAR: THÔNG TIN BỆNH NHÂN & THAO TÁC ================= -->
+  <header class="top-navbar">
+    <div class="brand-section">
+      <div class="app-logo-badge">
+        <div class="icon">🦷</div>
+        <div class="app-title-group">
+          <h1>Khung Chỉnh Nha</h1>
+          <span>Nha Khoa Thùy Anh</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Ô NHẬP NHANH THÔNG TIN BỆNH NHÂN -->
+    <div class="patient-info-bar">
+      <div class="input-group">
+        <label for="inputPatientName">Tên Bệnh Nhân:</label>
+        <input type="text" id="inputPatientName" class="input-name" placeholder="Nguyễn Hứa Gia Hân" title="Nhập họ tên bệnh nhân">
+      </div>
+
+      <div class="input-group">
+        <label for="inputBirthYear">Năm Sinh:</label>
+        <input type="text" id="inputBirthYear" class="input-year" placeholder="2015" title="Nhập năm sinh">
+      </div>
+
+      <div class="input-group">
+        <label for="inputExamDate">Ngày Khám:</label>
+        <input type="text" id="inputExamDate" class="input-date" placeholder="03.09.2026" title="Nhập ngày chụp / ngày khám">
+        <button type="button" id="btnToday" class="btn-today" title="Điền ngày hôm nay">📅 Hôm Nay</button>
+      </div>
+    </div>
+
+    <!-- NÚT CHỨC NĂNG CHÍNH -->
+    <div class="top-actions">
+      <input type="file" id="inputMultiPhotos" multiple accept="image/*" style="display:none;">
+      
+      <button type="button" id="btnSelectPhotos" class="btn btn-primary" title="Chọn cùng lúc nhiều ảnh từ máy tính (Ctrl+O)">
+        📁 Chọn Ảnh (Ctrl+O)
+      </button>
+
+      <button type="button" id="btnLoadSample" class="btn btn-sample" title="Thử nghiệm nhanh với 11 ảnh mẫu trích xuất từ file PSD">
+        🧪 Ảnh Mẫu
+      </button>
+
+      <button type="button" id="btnQuickCopy" class="btn btn-accent" title="Sao chép ảnh vào Clipboard để dán nhanh (Ctrl+C)">
+        📋 Sao Chép (Ctrl+C)
+      </button>
+
+      <button type="button" id="btnDirectDownload" class="btn btn-primary" style="background:#16a34a;" title="Tải ngay ảnh PNG chất lượng cao về máy">
+        💾 Tải Ảnh Ngay
+      </button>
+
+      <button type="button" id="btnOpenExportModal" class="btn btn-outline" style="padding: 6px 8px;" title="Tùy chọn tải nâng cao (2X Ultra HD, JPG)">
+        ⚙️
+      </button>
+
+      <button type="button" id="btnClearAll" class="btn btn-danger-outline" title="Làm trống các ô ảnh">
+        🧹 Xóa Hết
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= VÙNG LÀM VIỆC CHÍNH ================= -->
+  <main class="main-wrapper">
+
+    <!-- KHU VỰC HIỂN THỊ CANVAS (LIVE PREVIEW) -->
+    <section class="canvas-container" id="canvasContainer">
+
+      <!-- THANH CÔNG CỤ TINH CHỈNH Ô ĐANG CHỌN -->
+      <div id="slotFloatBar" class="slot-float-bar hidden">
+        <span id="floatSlotLabel" style="font-weight: 700; color: #facc15; margin-right: 4px;">Ô 01</span>
+        <button type="button" id="btnFloatFlipH" class="btn-highlight" title="Lật gương (dùng cho ảnh chụp qua gương hàm trên/dưới)">🪞 Lật Gương</button>
+        <button type="button" id="btnFloatRotateLeft" title="Xoay 90° ngược chiều kim đồng hồ">↺ 90° Trái</button>
+        <button type="button" id="btnFloatRotateRight" title="Xoay 90° thuận chiều kim đồng hồ">↻ 90° Phải</button>
+
+        <!-- BỘ XOAY GÓC TINH CHỈNH TỪ 0 ĐẾN 90 ĐỘ -->
+        <div class="float-rotate-group" title="Xoay tinh chỉnh góc từ 0 đến 90 độ">
+          <span>📐</span>
+          <button type="button" id="btnNudgeRotateLeft" class="btn-nudge" title="Nghiêng -1°">-1°</button>
+          <input type="range" id="sliderRotate" min="-90" max="90" step="0.5" value="0" title="Kéo thanh trượt để xoay góc từ 0 đến 90 độ">
+          <button type="button" id="btnNudgeRotateRight" class="btn-nudge" title="Nghiêng +1°">+1°</button>
+          <input type="number" id="inputRotateNum" min="-180" max="180" step="0.5" value="0" title="Nhập độ xoay chính xác">
+          <span style="color: #38bdf8; font-weight: bold;">°</span>
+          <button type="button" id="btnResetRotate" class="btn-nudge" title="Về lại góc 0°" style="color:#fde047;">0°</button>
+        </div>
+
+        <button type="button" id="btnToggleColorPanel" title="Chỉnh độ sáng, tương phản, màu sắc">🎨 Màu & Sáng</button>
+        <button type="button" id="btnFloatZoomIn" title="Phóng to ảnh">🔍＋</button>
+        <button type="button" id="btnFloatZoomOut" title="Thu nhỏ ảnh">🔍－</button>
+        <button type="button" id="btnFloatGuide" title="Bật/tắt đường gióng ngang mắt">📏 Gióng Mắt</button>
+        <button type="button" id="btnFloatReset" title="Đặt lại vị trí trung tâm">🎯 Đặt Lại</button>
+        <button type="button" id="btnFloatClear" style="color:#fca5a5;" title="Xóa ảnh ô này">🗑️</button>
+      </div>
+
+      <!-- BẢNG ĐIỀU KHIỂN MÀU SẮC & ÁNH SÁNG CHO Ô ĐANG CHỌN -->
+      <div id="slotColorPanel" class="slot-color-panel hidden">
+        <div class="color-panel-header">
+          <span>🎨 Chỉnh Ánh Sáng & Màu Sắc</span>
+          <button type="button" id="btnCloseColorPanel" class="btn-panel-close">✕</button>
+        </div>
+        <div class="color-control-rows">
+          <div class="color-row">
+            <span class="color-label">☀️ Độ sáng:</span>
+            <input type="range" id="sliderBrightness" min="-100" max="100" value="0" step="1">
+            <span id="valBrightness" class="color-val">0%</span>
+            <button type="button" class="btn-color-reset" id="btnResetBrightness">↺</button>
+          </div>
+          <div class="color-row">
+            <span class="color-label">🌓 Tương phản:</span>
+            <input type="range" id="sliderContrast" min="-100" max="100" value="0" step="1">
+            <span id="valContrast" class="color-val">0%</span>
+            <button type="button" class="btn-color-reset" id="btnResetContrast">↺</button>
+          </div>
+          <div class="color-row">
+            <span class="color-label">🎨 Độ bão hòa:</span>
+            <input type="range" id="sliderSaturate" min="-100" max="100" value="0" step="1">
+            <span id="valSaturate" class="color-val">0%</span>
+            <button type="button" class="btn-color-reset" id="btnResetSaturate">↺</button>
+          </div>
+        </div>
+        <div class="color-panel-actions">
+          <button type="button" id="btnApplyColorAll" class="btn-color-action btn-apply-all" title="Áp dụng thông số sáng/màu này cho toàn bộ các ảnh khác">
+            📋 Áp dụng tất cả
+          </button>
+          <button type="button" id="btnResetColorSlot" class="btn-color-action btn-reset-all" title="Đặt lại màu gốc cho ô này">
+            ↺ Đặt lại màu gốc
+          </button>
+        </div>
+      </div>
+
+      <!-- KHUNG CANVAS THEO MẪU PSD -->
+      <div class="canvas-paper" id="canvasPaper">
+        <canvas id="mainCanvas" width="1500" height="1061"></canvas>
+      </div>
+
+      <!-- ĐIỀU KHIỂN PHÓNG TO / THU NHỎ MÀN HÌNH -->
+      <div class="canvas-zoom-bar">
+        <button type="button" id="btnZoomOut" title="Thu nhỏ">－</button>
+        <span id="zoomPercentText">100%</span>
+        <button type="button" id="btnZoomIn" title="Phóng to">＋</button>
+        <button type="button" id="btnZoomFit" title="Căn vừa màn hình (100%)">⛶</button>
+      </div>
+
+    </section>
+
+    <!-- THANH BÊN: DANH SÁCH Ô ẢNH & QUY TRÌNH -->
+    <aside class="side-panel">
+      <div class="panel-header">
+        <span>Khung 11 Ảnh Mẫu PSD Gốc</span>
+      </div>
+
+      <!-- QUY TRÌNH 15 GIÂY -->
+      <div class="panel-section">
+        <div class="guide-box">
+          <strong>⚡ Quy trình sử dụng (dưới 15 giây):</strong>
+          <ol>
+            <li><strong>Điền 3 ô:</strong> Tên bệnh nhân, Năm sinh, Ngày khám (bấm nút "Hôm nay").</li>
+            <li><strong>Chọn hoặc ném ảnh vào:</strong> App tự động đọc tên file số 1..11 hoặc kéo thả trực tiếp vào ô.</li>
+            <li><strong>Tinh chỉnh nhanh:</strong> Lăn chuột để Zoom, giữ chuột kéo Pan, bấm <strong>Lật Gương</strong> cho ảnh hàm trên/dưới.</li>
+            <li><strong>Xuất ảnh:</strong> Bấm <strong>Tải Ảnh</strong> hoặc <strong>Sao Chép</strong> để dán Zalo.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- DANH SÁCH 11 Ô THEO CHUYÊN KHOA -->
+      <div class="panel-section" style="flex:1;">
+        <div class="section-title">
+          <span>Vị Trí Chuyên Khoa</span>
+          <span style="font-size: 11px; text-transform: none; color: #94a3b8;">Nhấp để chọn</span>
+        </div>
+        <div id="slotList" class="slot-list"></div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ================= HIỆU ỨNG KÉO THẢ FILE ================= -->
+  <div id="dragOverlay" class="drag-overlay">
+    <div class="drag-overlay-card">
+      <div style="font-size: 52px; margin-bottom: 10px;">📥</div>
+      <div>Thả tất cả ảnh vào đây</div>
+      <div style="font-size: 13px; color: #64748b; font-weight: 500; margin-top: 8px;">
+        Hệ thống tự động nhận diện tên file (1, 2... 11) và phân bổ chuẩn vào từng khung!
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= THÔNG BÁO TOAST ================= -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ================= HỘP THOẠI XUẤT ẢNH ================= -->
+  <div id="exportModal" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Tải Ảnh Thành Phẩm Bệnh Án</h3>
+        <button type="button" id="btnCloseExportModal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="option-group">
+          <label>Độ Phân Giải:</label>
+          <div class="radio-tiles">
+            <div class="tile tile-res active" data-res="1x">
+              <div class="tile-title">Chuẩn PSD Gốc (1500 × 1061 px)</div>
+              <div class="tile-desc">Đúng kích thước gốc của mẫu, siêu nét gửi Zalo/Web</div>
+            </div>
+            <div class="tile tile-res" data-res="2x">
+              <div class="tile-title">Ultra HD 2X (3000 × 2122 px)</div>
+              <div class="tile-desc">Phóng lớn gấp đôi, phù hợp in ấn và hội chẩn</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="option-group">
+          <label>Định Dạng File:</label>
+          <div class="radio-tiles">
+            <div class="tile tile-fmt active" data-fmt="png">
+              <div class="tile-title">PNG (Khuyên Dùng)</div>
+              <div class="tile-desc">Giữ nguyên 100% độ nét, chữ sắc cạnh</div>
+            </div>
+            <div class="tile tile-fmt" data-fmt="jpg">
+              <div class="tile-title">JPEG Chất Lượng Cao</div>
+              <div class="tile-desc">Dung lượng nhẹ hơn, tương thích mọi thiết bị</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="option-group">
+          <label>Tên File Tự Động:</label>
+          <div id="previewFilename" style="padding: 10px 14px; background: #f1f5f9; border-radius: 6px; font-family: monospace; font-size: 13px; color: #0284c7; font-weight: 600; word-break: break-all;">
+            Nguyễn Hứa Gia Hân - 2015 - 03.09.2026.png
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnOpenNewTab" class="btn btn-outline" style="border-color: #64748b; color: #475569;" title="Mở ảnh trong tab mới để xem hoặc chuột phải Lưu">
+          🌐 Mở Tab Mới
+        </button>
+        <button type="button" id="btnDoCopy" class="btn btn-outline" style="border-color: #0284c7; color: #0284c7;">
+          📋 Sao Chép Clipboard
+        </button>
+        <button type="button" id="btnDoDownload" class="btn btn-primary" style="background:#16a34a;">
+          💾 Tải File Về Máy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/logo_thuyanh_b64.js"></script>
+  <script src="sample_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
